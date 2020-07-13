@@ -1,0 +1,204 @@
+// typedef enum/struct serve para que na hora de declarar uma variável
+// do tipo enum/struct, você não precise escrever, por exemplo enum Sexo sexo.
+
+#pragma region Tipos
+
+#pragma region Animal
+typedef enum Sexo 
+{
+  MASC,
+  FEM
+} Sexo;
+
+typedef struct Animal
+{
+  int chip; //acredito que seja o id
+  char raca[100];
+  Sexo sexo;
+  int idade;
+  float pesoEmKg;
+  bool estaVivo;
+  bool adodato;
+} Animal;
+#pragma endregion
+
+#pragma region Pessoa
+typedef struct Endereco
+{
+  char rua[100];
+  char cidade[100];
+  char estado[100];
+  char cep[8];
+} Endereco;
+
+typedef struct Pessoa
+{
+  char nome[100];
+  char cpf[11];
+  char telefone[11];
+  Animal* animalAdotado;
+  Endereco endereco;
+} Pessoa;
+#pragma endregion
+
+#pragma endregion
+
+#pragma region Globais
+int CAPACIDADE_ABRIGO = 1000;
+Animal* ABRIGO[CAPACIDADE_ABRIGO];
+Pessoa* PESSOAS[CAPACIDADE_ABRIGO];
+#pragma endregion
+
+// Tu pode criar uma lista pra guardar esses animais em vez de usar um array
+// Eu tenho o código fonte de uma lista em C se tu quiser
+Animal CadastrarAnimal(
+  int chip, 
+  char raca[100],
+  Sexo sexo,
+  int idade,
+  float pesoEmKg,
+  bool estaVivo,
+) 
+{
+  int tamanhoArray = sizeof(ABRIGO) / sizeof(ABRIGO[0]);
+
+  // Retorna null se já houver algum animal com o chip passado
+  for (int i = 0; i < tamanhoArray; i++)
+  {
+    Animal* pessoaI = ABRIGO[i];
+    if (pessoaI->chip == chip) 
+      return NULL;
+  }
+
+  Animal novoAnimal;
+  novoAnimal.chip = chip;
+  novoAnimal.raca = raca;
+  novoAnimal.idade = idade;
+  novoAnimal.pesoEmKg = pesoEmKg;
+  novoAnimal.estaVivo = estaVivo;
+  novoAnimal.adodato = false;
+
+  //inseri animal no array ABRIGO
+
+  return novoAnimal;
+}
+
+// Se por exemplo, for alterar só o nome do animal, em novosDados
+// tu copia todos outros dados do animal.
+void AtualizarAnimal(Animal* animal, Animal* novosDados) 
+{
+  animal->raca = novosDados->raca;
+  animal->sexo = novosDados->sexo;
+  animal->idade = novosDados->idade;
+  animal->pesoEmKg = novosDados->pesoEmKg;
+  animal->estaVivo = novosDados->estaVivo;
+}
+
+void RemoverAnimal(int chip) 
+{
+  for (int i = 0; i < CAPACIDADE_ABRIGO; i++)
+  {
+    Animal* pessoaI = ABRIGO[i];
+    if (pessoaI->chip == chip) 
+      ABRIGO[i] = NULL;
+  }
+}
+
+// Usar esse método para a funcionalidade de mostrar os animais disponíveis para adoção
+Animal*[] AnimaisNaoAdotados() 
+{
+  Animal* animais[CAPACIDADE_ABRIGO];
+  int quantidadeDeAnimais = 0;
+
+  for (int i = 0; i < CAPACIDADE_ABRIGO; i++)
+  {
+    Animal* pessoaI = ABRIGO[i];
+    if (pessoaI->adotado == false && pessoaI->estaVivo) 
+    {
+      animais[quantidadeDeAnimais] = pessoaI;
+      quantidadeDeAnimais++;
+    }
+  }
+
+  return animais;
+}
+
+// Usar esse método para a funcionalidade de buscar animais
+// 2 cuidados: 
+//  não chamar esse método passando chipe E nome
+//  garantir que a verificação do nome não causa nenhum erro quando o nome passado é vazio
+*Animal[] BuscarAnimais(int chip, char nome[100]) {
+  Animal* animais[CAPACIDADE_ABRIGO];
+  int quantidadeDeAnimais = 0;
+
+  for (int i = 0; i < CAPACIDADE_ABRIGO; i++)
+  {
+    Animal* pessoaI = ABRIGO[i];
+    if (pessoaI->chip == chip || pessoaI->nome == nome) 
+      animais[quantidadeDeAnimais++] = pessoaI;
+  }
+
+  return animais;
+}
+
+Pessoa CadastrarPessoa(
+  char nome[100],
+  char cpf[11],
+  char telefone[11],
+  Endereco endereco
+) 
+{
+  Pessoa novaPessoa;
+  novaPessoa.nome = nome;
+  novaPessoa.cpf = cpf;
+  novaPessoa.telefone = telefone;
+  novaPessoa.endereco = endereco;
+
+  //inserir pessoa no array PESSOAS
+
+  return novaPessoa;
+}
+
+void AtualizarPessoa(Pessoa* pessoa, Pessoa* novosDados) 
+{
+  pessoa->nome = novosDados->nome;
+  pessoa->cpf = novosDados->cpf;
+  pessoa->telefone = novosDados->telefone;
+  pessoa->endereco = novosDados->endereco;
+}
+
+void RemoverPessoa(char cpf[11]) 
+{
+  int tamanhoArray = sizeof(PESSAS) / sizeof(PESSOAS[0]);
+  for (int i = 0; i < tamanhoArray; i++)
+  {
+    Pessoa* pessoaI = PESSOAS[i];
+    if (pessoaI->cpf == cpf) 
+      ABRIGO[i] = NULL;
+  }
+}
+
+*Pessoa[] BuscarPessoas(char cpf[11], char nome[100])
+{
+  Pessoas* pessoas[CAPACIDADE_ABRIGO];
+
+  for (int i = 0; i < CAPACIDADE_ABRIGO; i++)
+  {
+    Pessoa* pessoaI = ABRIGO[i];
+    if (pessoaI->cpf == cpf || pessoaI->nome == nome) 
+      pessoas[quantidadeDePessoas++] = pessoaI;
+  }
+
+  return pessoas;
+}
+
+// Tem que ser um ponteiro para alterar as variáveis passadas pra func
+// e não uma cópia delas
+void AdotarAnimal(Pessoa* pessoa, Animal* animal) 
+{
+  // Se tu achar melhor, tu pode por a referência de uma pessoa no Animal.
+  // Isso tira a necessidade do animal ter esse bool definindo se ele
+  // foi ou não adotado.
+  pessoa->animalAdotado = animal;
+  animal->adodato = true;
+}
